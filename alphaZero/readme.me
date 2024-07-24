@@ -1,0 +1,115 @@
+# https://github.com/suragnair/alpha-zero-general/tree/master
+# https://github.com/aebrahimian/alpha-zero-hex
+
+1. NeuralNet.py
+
+This file defines the neural network used by the AlphaZero algorithm for Hex.
+
+Key components:
+
+    Initialization (__init__): Defines the architecture with fully connected layers.
+    Forward pass (forward): Defines how the input data passes through the network.
+    Training (train_model): Contains the logic for training the network using the provided training examples.
+    Prediction (predict): Uses the trained network to predict the policy (action probabilities) and value (game outcome) for a given board state.
+    Checkpointing (save_checkpoint, load_checkpoint): Methods to save and load the model parameters to and from disk.
+
+2. MCTS.py
+
+This file implements the Monte Carlo Tree Search (MCTS) algorithm, which is used to explore the game tree and find the most promising moves.
+
+Key components:
+
+    Initialization (__init__): Sets up the data structures for storing MCTS statistics.
+    Getting action probabilities (get_action_prob): Runs MCTS simulations and returns the probabilities for each possible action.
+    Search (search): Recursively explores the game tree to simulate games, update the statistics, and backpropagate the results.
+
+3. HexWrapper.py
+
+This file wraps the Hex game logic, providing methods for interacting with the game, such as getting the initial board, making moves, checking valid moves, and determining the game outcome.
+
+Key components:
+
+    Initialization (__init__): Sets up the game with a given board size.
+    Game state methods: Methods for getting the initial board, the canonical form of the board, the next state after a move, valid moves, the game outcome, and the string representation of the board.
+    Symmetries (get_symmetries): Returns symmetrical versions of the board, which can be useful for training data augmentation.
+    Display (display): Prints the board to the console.
+
+4. Coach.py
+
+This file coordinates the self-play and training process, utilizing the neural network and MCTS.
+
+Key components:
+
+    Initialization (__init__): Sets up the game, neural network, MCTS, and training parameters.
+    Episode execution (executeEpisode): Runs a single episode of self-play, generating training examples.
+    Learning (learn): Runs multiple iterations of self-play and training, evaluates the new network against the old one, and updates the network if it performs better.
+
+5. Arena.py
+
+This file facilitates playing matches between two players (which can be two AIs) to evaluate their performance.
+
+Key components:
+
+    Initialization (__init__): Sets up the players and the game.
+    Single game (play_game): Plays a single game between the two players.
+    Multiple games (play_games): Plays a specified number of games and returns the win counts for each player.
+
+6. hex_engine.py
+
+This file defines the core Hex game logic, such as the board representation, move making, and game evaluation.
+
+Key components:
+
+    Initialization (__init__): Sets up the board and game state.
+    Reset (reset): Resets the game to the initial state.
+    Move making (moove): Makes a move and updates the game state.
+    Printing (print): Prints the current board state.
+    Evaluation (evaluate): Determines if a player has won.
+    Helpers: Various helper methods for getting adjacent cells, valid moves, etc.
+
+What Happens When You Start the Code
+
+Step-by-Step Execution:
+
+    Initialization:
+        An instance of HexGameWrapper is created with the specified board size.
+        An instance of NeuralNet is created with the input, hidden, and output dimensions based on the board size.
+        An instance of Coach is created, which sets up the game, neural network, and MCTS, and initializes the training parameters.
+
+    Self-Play and Training:
+        The learn method of Coach is called.
+        For each iteration:
+            Multiple episodes of self-play are executed using executeEpisode, generating training examples.
+            The examples are added to the training history.
+            The neural network is trained using the collected examples.
+            The new network is evaluated against the previous version using Arena.
+            If the new network performs better, it is accepted and saved; otherwise, the previous network is restored.
+
+    Output:
+        Throughout the process, information about training progress and evaluation results is printed to the console.
+        Training losses are recorded and can be plotted to visualize the training progress.
+        The best-performing neural network is saved to disk for future use.
+
+In summary, the code sets up and trains an AlphaZero agent to play Hex using self-play, neural network training, and MCTS. The Coach coordinates the entire process, using NeuralNet for learning, MCTS for move selection, HexWrapper for game logic, and Arena for evaluating the performance of the trained models.
+
+########################################################
+
+Learning Process
+
+    Self-Play:
+        For each of the 1000 iterations, 100 self-play games (episodes) are played.
+        During each game, MCTS is used to determine the moves. The MCTS simulations are run 25 times for each move.
+        The temperature parameter controls exploration. For the first 15 moves in each game, higher exploration is allowed. After that, the move selection becomes deterministic.
+
+    Generating Training Data:
+        Each move in the self-play games generates training data (board state, action probabilities, game outcome).
+        These training examples are stored in a deque with a maximum length of 200000.
+
+    Training the Neural Network:
+        After the 100 self-play games in each iteration, the collected training data is used to train the neural network.
+        The training process includes data augmentation (e.g., using symmetrical board states).
+
+    Evaluating and Updating the Neural Network:
+        After training, the new neural network is evaluated against the old one by playing 40 games in the arena.
+        If the new network wins at least 60% of the games, it replaces the old network.
+        The updated network is then saved as a checkpoint.
