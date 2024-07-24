@@ -10,4 +10,4 @@ This repository contains the code and resources for training an agent to play th
 
 ## Key Findings
 
-Our research demonstrated that Deep Q-learning, when combined with convolutional neural networks, achieved the highest overall performance. This approach not only converged quickly but also generalized well across different board sizes AlphaZero showed potential but required significantly more resources and time for hyper-parameter tuning. Ultimately, the convolutional models trained with Deep Q-learning outperformed other architectures, making them the most effective solution for training an agent to play Hex.
+Our research demonstrated that Deep Q-learning, when combined with convolutional neural networks, achieved the highest overall performance. This approach not only converged quickly but also generalized well across different board sizes. AlphaZero showed potential but required significantly more resources and time for hyper-parameter tuning. Ultimately, the convolutional models trained with Deep Q-learning outperformed other architectures, making them the most effective solution for training an agent to play Hex.
